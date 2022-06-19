@@ -1,0 +1,17 @@
+html, body {    
+    margin: 0;
+    height: 100%;
+}
+
+canvas {
+    border: 1px black solid;
+}
+
+#canvas-wrap {
+    display: flex;
+    height: 100%;
+}
+
+#game-board {
+    margin: auto;
+}

@@ -6,7 +6,6 @@ for(let i = 0; i < 1000; i++){
     // Select prize doorl
     let prize_door = select_random_door();
     let chosen_door = select_random_door();
-    console.log(chosen_door)
     let reveal_door;
 
     while(true){
