@@ -4,7 +4,7 @@ import math
 import database.dummy as db
 
 
-class Counter(tk.Tk):
+class Search(tk.Tk):
     def __init__(self):
         super().__init__()
 
@@ -122,6 +122,6 @@ class Counter(tk.Tk):
 
 
 if __name__ == "__main__":
-    counter = Counter()
-    counter.mainloop()
+    search = Search()
+    search.mainloop()
 
