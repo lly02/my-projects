@@ -1,7 +1,9 @@
 import tkinter as tk
 import re
 import math
+
 import database.dummy as db
+import Scrapper
 
 
 class Search(tk.Tk):
@@ -43,9 +45,13 @@ class Search(tk.Tk):
         self.frm_pagination_button = tk.Frame(self.frm_pagination, bg="gray")
         self.frm_pagination_button.pack(ipady=15)
 
+        # init Scrapper.py
+        self.scrapper = Scrapper.Scrapper()
+
     def search(self, *args):
-        pattern = f"^.*{self.query.get()}.*$"
-        results = [x for x in db.data if re.fullmatch(pattern, x[0], re.IGNORECASE)]
+        # pattern = f"^.*{self.query.get()}.*$"
+        # results = [x for x in db.data if re.fullmatch(pattern, x[0], re.IGNORECASE)]
+        results = self.scrapper.search(self.query.get())
 
         if len(results) == 0:
             print("Nothing found!")
@@ -64,7 +70,10 @@ class Search(tk.Tk):
         results_buttons = [
             tk.Button(
                 self.frm_result,
-                text=result[0] + "\n" + result[1],
+                text=f"{result.get('brand_name', 'Generic')} ({result.get('description')})"
+                     f"\n"
+                     f"{result.get('nutritional_contents').get('energy').get('value')} "
+                     f"{result.get('nutritional_contents').get('energy').get('unit')}",
                 justify=tk.LEFT,
                 anchor="nw",
                 borderwidth=5,
