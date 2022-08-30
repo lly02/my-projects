@@ -2,16 +2,18 @@ import threading
 import requests
 import concurrent.futures
 
+from ..food import Food
+
 
 class Scrapper(object):
     api_url = "https://www.myfitnesspal.com/api/nutrition?"
 
     def __init__(self):
-        self.result = []
+        self.result = [None] * 10
         self.lock = threading.Lock()
 
     def search(self, query):
-        self.result = []
+        self.result = [None] * 10
         #  using threads to search through 10 pages
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             for x in range(1, 11):
@@ -26,23 +28,25 @@ class Scrapper(object):
         except requests.exceptions.RequestException as e:
             SystemExit(e)
 
-        result_arr = r.json()["items"]
+        results = r.json()["items"]
 
         # extract the needed information
-        for item in result_arr:
-            food = item["item"]
+        with self.lock:
+            page_result = []
 
-            try:
-                food.get("brand_name")
-            except KeyError:
-                food["brand_name"] = None
+            for result in results:
+                food = result["item"]
 
-            with self.lock:
-                self.result.extend([(
-                    {
-                        "brand_name": food.get("brand_name", None),
-                        "description": food.get("description", None),
-                        "nutritional_contents": food.get("nutritional_contents", None),
-                        "serving_sizes": food.get("serving_sizes", None)
-                    }
-                )])
+                try:
+                    food.get("brand_name")
+                except KeyError:
+                    food["brand_name"] = "Generic"
+
+                page_result.append(Food.Food(
+                    food.get("brand_name"),
+                    food.get("description"),
+                    food.get("nutritional_contents"),
+                    food.get("serving_sizes")
+                ))
+
+            self.result[page - 1] = page_result

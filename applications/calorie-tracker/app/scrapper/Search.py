@@ -1,9 +1,7 @@
 import tkinter as tk
-import re
 import math
 
-import database.dummy as db
-import Scrapper
+from . import Scrapper
 
 
 class Search(tk.Tk):
@@ -13,7 +11,7 @@ class Search(tk.Tk):
         # main frame
         self.title("Calorie Tracker")
         self.geometry("800x600")
-        self.resizable(0, 0)
+        self.resizable(False, False)
 
         # string var
         self.query = tk.StringVar()
@@ -51,7 +49,10 @@ class Search(tk.Tk):
     def search(self, *args):
         # pattern = f"^.*{self.query.get()}.*$"
         # results = [x for x in db.data if re.fullmatch(pattern, x[0], re.IGNORECASE)]
-        results = self.scrapper.search(self.query.get())
+        try:
+            results = [result for result in self.scrapper.search(self.query.get()) if len(result) != 0]
+        except TypeError:
+            results = []
 
         if len(results) == 0:
             print("Nothing found!")
@@ -67,20 +68,24 @@ class Search(tk.Tk):
         for widget in self.frm_pagination_button.winfo_children():
             widget.destroy()
 
-        results_buttons = [
-            tk.Button(
-                self.frm_result,
-                text=f"{result.get('brand_name', 'Generic')} ({result.get('description')})"
-                     f"\n"
-                     f"{result.get('nutritional_contents').get('energy').get('value')} "
-                     f"{result.get('nutritional_contents').get('energy').get('unit')}",
-                justify=tk.LEFT,
-                anchor="nw",
-                borderwidth=5,
-                font=25
-            )
-            for result in results
-        ]
+        results_buttons = []
+
+        for page_result in results:
+            for result in page_result:
+                energy, nutrition = result.get_serving_size()
+
+                results_buttons.append(
+                    tk.Button(
+                        self.frm_result,
+                        text=f"{result.brand_name} ({result.description})"
+                             f"\n"
+                             f"{energy}kcal / {nutrition['value']} {nutrition['unit']}",
+                        justify=tk.LEFT,
+                        anchor="nw",
+                        borderwidth=5,
+                        font=25
+                    )
+                )
 
         # insert result buttons into the result frame
         # try except for when len of last page is lesser than 5
@@ -133,4 +138,3 @@ class Search(tk.Tk):
 if __name__ == "__main__":
     search = Search()
     search.mainloop()
-
