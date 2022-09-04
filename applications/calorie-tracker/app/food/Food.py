@@ -7,6 +7,8 @@ class Food(object):
         self.description = description
         self.nutrition_contents = nutrition_contents
         self.serving_sizes = serving_sizes
+        self.base_serving_sizes = [serving_size for serving_size in self.serving_sizes
+                                   if str(serving_size["value"]).startswith("1")]
         self.nutrition_card = None
 
     # get serving size in grams if exists, else index 0 of self.serving_sizes
