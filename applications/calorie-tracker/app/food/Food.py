@@ -1,9 +1,13 @@
+from . import NutritionCard
+
+
 class Food(object):
     def __init__(self, brand_name, description, nutrition_contents, serving_sizes):
         self.brand_name = brand_name
         self.description = description
         self.nutrition_contents = nutrition_contents
         self.serving_sizes = serving_sizes
+        self.nutrition_card = None
 
     # get serving size in grams if exists, else index 0 of self.serving_sizes
     def get_serving_size(self):
@@ -27,3 +31,18 @@ class Food(object):
         energy = energy * result["nutrition_multiplier"]
 
         return energy, result
+
+    def create_nutrition_card(self):
+        if self.nutrition_card is None:
+            self.nutrition_card = NutritionCard.NutritionCard(self)
+            self.nutrition_card.protocol("WM_DELETE_WINDOW",
+                                         lambda: self.destroy_nutrition_card())
+            self.nutrition_card.focus_force()
+            self.nutrition_card.mainloop()
+        else:
+            self.nutrition_card.focus_force()
+
+    def destroy_nutrition_card(self):
+        if self.nutrition_card is not None:
+            self.nutrition_card.destroy()
+            self.nutrition_card = None

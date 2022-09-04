@@ -25,6 +25,7 @@ class Search(tk.Tk):
         self.ent_search = tk.Entry(self.frm_header, textvariable=self.query, font=25)
         self.ent_search.bind("<Return>", self.search)
         self.ent_search.grid(column=0, row=0, pady=10, padx=10, sticky="nsew")
+        self.ent_search.focus_force()
 
         # enter button
         self.btn_enter = tk.Button(self.frm_header, text="Search", height=1, font=25, command=self.search)
@@ -83,7 +84,8 @@ class Search(tk.Tk):
                         justify=tk.LEFT,
                         anchor="nw",
                         borderwidth=5,
-                        font=25
+                        font=25,
+                        command=lambda current=result: current.create_nutrition_card()
                     )
                 )
 
