@@ -1,55 +1,70 @@
 import tkinter as tk
 import math
 
-from . import Scrapper
+from . import scrapper
 
 
 class Search(tk.Tk):
+    """
+    A class that extends :class:`tkinter` to create the Search UI which allows user to search for a food item.
+    It retrieves data from the website https://www.myfitnesspal.com/.
+    """
+
     def __init__(self):
+        """
+        Initialize tk and start generating the UI
+        """
         super().__init__()
 
-        # main frame
+        # Main frame
         self.title("Calorie Tracker")
         self.geometry("800x600")
         self.resizable(False, False)
+        self.defaultFont = "Calibri 15"
 
-        # string var
-        self.query = tk.StringVar()
-
-        # header frame
+        # Header frame
         self.frm_header = tk.Frame(self, relief=tk.RAISED, borderwidth=5, bg="gray")
         self.frm_header.grid_columnconfigure(0, weight=1)
         self.frm_header.pack(fill=tk.X)
 
-        # search bar
-        self.ent_search = tk.Entry(self.frm_header, textvariable=self.query, font=25)
+        # StringVar to retrieve data from user input in self.ent_search
+        self.query = tk.StringVar()
+
+        # Search bar
+        self.ent_search = tk.Entry(self.frm_header, font=self.defaultFont, textvariable=self.query)
         self.ent_search.bind("<Return>", self.search)
         self.ent_search.grid(column=0, row=0, pady=10, padx=10, sticky="nsew")
         self.ent_search.focus_force()
 
-        # enter button
-        self.btn_enter = tk.Button(self.frm_header, text="Search", height=1, font=25, command=self.search)
+        # Enter button
+        self.btn_enter = tk.Button(self.frm_header, text="Search", height=1, font=self.defaultFont, command=self.search)
         self.btn_enter.grid(column=1, row=0, pady=10, padx=10)
 
-        # result frame
+        # Result frame
         self.frm_result = tk.Frame(self, relief=tk.RAISED, bg="gray")
         self.frm_result.pack(fill=tk.BOTH, expand=True)
         self.frm_result.columnconfigure(0, weight=1)
 
-        # pagination bar
+        # Pagination bar
         self.frm_pagination = tk.Frame(self, bg="gray")
         self.frm_pagination.pack(fill=tk.BOTH)
 
-        # pagination buttons wrap
+        # Pagination buttons wrap
         self.frm_pagination_button = tk.Frame(self.frm_pagination, bg="gray")
         self.frm_pagination_button.pack(ipady=15)
 
-        # init Scrapper.py
-        self.scrapper = Scrapper.Scrapper()
+        # Init scrapper.py
+        self.scrapper = scrapper.Scrapper()
 
     def search(self, *args):
-        # pattern = f"^.*{self.query.get()}.*$"
-        # results = [x for x in db.data if re.fullmatch(pattern, x[0], re.IGNORECASE)]
+        """
+        Search the website https://www.myfitnesspal.com/ for the user input food item. Calls self.display_results to
+        generate the result buttons.
+
+        :param args: Receives the information about the KeyPress event when user searches
+        :type args: tuple, optional
+        :raises TypeError: If result is empty, set result as empty
+        """
         try:
             results = [result for result in self.scrapper.search(self.query.get()) if len(result) != 0]
         except TypeError:
@@ -59,11 +74,20 @@ class Search(tk.Tk):
             print("Nothing found!")
         else:
             self.display_results(results)
-
+        # Reset the entry field
         self.query.set("")
 
     def display_results(self, results, page=1):
-        # clear the results
+        """
+        Organise the results into buttons which are split into multiple pages
+
+        :param results: A list of results from the scrapper to populate the buttons
+        :type results: list
+        :param page: Go to the page
+        :type page: int, optional
+        :raises IndexError: To stop inserting buttons on the last page if the number of buttons is less than 5
+        """
+        # Clear the buttons
         for widget in self.frm_result.winfo_children():
             widget.destroy()
         for widget in self.frm_pagination_button.winfo_children():
@@ -73,24 +97,24 @@ class Search(tk.Tk):
 
         for page_result in results:
             for result in page_result:
-                energy, nutrition = result.get_serving_size()
+                serving = result.default_serving_size
+                nutrition = result.default_nutrition
 
                 results_buttons.append(
                     tk.Button(
                         self.frm_result,
                         text=f"{result.brand_name} ({result.description})"
                              f"\n"
-                             f"{energy}kcal / {nutrition['value']} {nutrition['unit']}",
+                             f"{nutrition['energy']['value']}calories / {serving['value']} {serving['unit']}",
                         justify=tk.LEFT,
                         anchor="nw",
+                        font=self.defaultFont,
                         borderwidth=5,
-                        font=25,
                         command=lambda current=result: current.create_nutrition_card()
                     )
                 )
 
-        # insert result buttons into the result frame
-        # try except for when len of last page is lesser than 5
+        # Try except for when len of last page is lesser than 5
         try:
             for count, x in enumerate(range((page - 1) * 5, page * 5)):
                 results_buttons[x].grid(
@@ -103,7 +127,7 @@ class Search(tk.Tk):
         except IndexError:
             pass
 
-        # pagination buttons (<, ..., >)
+        # Pagination buttons ( <, 1, 2, ... , > )
         btn_pagination = [
             tk.Button(
                 self.frm_pagination_button,
@@ -116,7 +140,7 @@ class Search(tk.Tk):
                                                      page if page * 5 >= len(results_buttons) else page + 1)
             )
         ]
-        # actual pagination numbers
+        # Insert the pagination numbers
         btn_pagination[1:1] = [
             tk.Button(
                 self.frm_pagination_button,
@@ -135,8 +159,3 @@ class Search(tk.Tk):
 
         for button in btn_pagination:
             button.pack(side=tk.LEFT)
-
-
-if __name__ == "__main__":
-    search = Search()
-    search.mainloop()

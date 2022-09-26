@@ -1,3 +1,7 @@
-import tkinter as tk
+from .scrapper import search
 
-class GUI(tk.TK):
+
+class Gui(object):
+    def __init__(self):
+        self.search = search.Search()
+        self.search.mainloop()

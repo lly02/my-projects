@@ -1,5 +1,4 @@
-import app.scrapper.Search
+import app.gui
 
 if __name__ == "__main__":
-    search = app.scrapper.Search.Search()
-    search.mainloop()
+    app.gui.Gui()
