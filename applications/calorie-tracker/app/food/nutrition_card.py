@@ -69,9 +69,9 @@ class NutritionCardController(object):
         :param args: Arguments by trace add
         :type args: string
         """
+        if self.gui.ent_measurement_input.get() == "":
+            self.gui.ent_measurement_input.set("0")
         if self.gui.ent_measurement_input.get()[-1].isdigit():
-            if self.gui.ent_measurement_input.get() == "":
-                self.gui.ent_measurement_input.set("0")
             self.model.current_nutrition = self.model.find_current_nutrition(self.gui.ent_measurement_input.get())
             self.display_nutrition()
         else:
