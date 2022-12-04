@@ -1,2 +1,2 @@
-# random-projects
-Github random-projects repo
+# my projects
+Github projects repo
