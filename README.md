@@ -1,2 +1,2 @@
 # my projects
-Github projects repo
+Github project repo
